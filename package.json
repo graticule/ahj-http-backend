@@ -1,0 +1,20 @@
+{
+  "name": "ahj",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prestart": "npm install",
+    "start": "forever server.js",
+    "watch": "forever -w server.js"
+  },
+  "author": "coursar",
+  "license": "MIT",
+  "engines": {
+    "node": "12.x"
+  },
+  "dependencies": {
+    "forever": "^4.0.3",
+    "koa": "^2.14.2"
+  }
+}
