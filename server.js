@@ -9,17 +9,17 @@ const uuid = require("uuid");
 let tickets = [
   {
     id: 0,
-    name: "Ticket 0",
-    status: true,
+    name: "Поменять краску в принтере, ком. 404",
+    status: false,
     created: Date.now(),
-    description: "Description of Ticket 0: Ticket 0 Ticket 0 Ticket 0 Ticket 0 Ticket 0",
+    description: `Принтер HP LJ 1210, картриджи на складе`,
   },
   {
     id: 1,
-    name: "Ticket 1",
-    status: false,
+    name: "Установить обновление KB-XXX",
+    status: true,
     created: Date.now(),
-    description: "Description of Ticket 1: Ticket 1 Ticket 1 Ticket 1 Ticket 1 Ticket 1",
+    description: "Вышло критическое обновление для Windows, нужно поставить обновления в следующем приоритете:<br>1. Сервера (не забыть сделать бэкап!)<br>2. Рабочие станции",
   },
 ];
 
@@ -44,7 +44,6 @@ router.get("/", ctx => {
       const result = tickets.map( (ticket) => {
         return { "id": ticket.id, name: ticket.name, status: ticket.status, created: ticket.created };
       });
-      console.log(result); 
       ctx.response.body = result;
       return;
     case "ticketById":
@@ -84,7 +83,6 @@ router.put("/", ctx => {
     case 'updateTicket':
       const { id, name, description, status } = ctx.request.body;
       const ticket = tickets.find(ticket => ticket.id == id);
-      console.log(name, description, status, ticket);
       if (name !== undefined) {
         ticket.name = name;
       }
@@ -103,7 +101,6 @@ router.put("/", ctx => {
           }
         }
       }
-      console.log(ticket);
       ctx.response.status = 204
       return;
     default:
@@ -114,12 +111,10 @@ router.put("/", ctx => {
 
 router.delete("/", ctx => {
   const { method, id } = ctx.request.query;
-  console.log(method, id)
-
+  
   switch (method) {
     case 'deleteTicket':
       tickets = tickets.filter((ticket) => ticket.id != id);
-      console.log(tickets.map(ticket => ticket.id));
       ctx.response.status = 204
       return;
     default:
