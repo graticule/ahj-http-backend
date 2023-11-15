@@ -27,8 +27,6 @@ const app = new Koa();
 
 const router = new Router();
 
-router
-
 app.use(logger("tiny"));
 
 app.use(cors());
@@ -43,14 +41,16 @@ router.get("/", ctx => {
 
   switch (method) {
     case 'allTickets':
-      ctx.response.body = tickets.map(({ id, name, status, created }) => {
-        return { id, name, status, created };
+      const result = tickets.map( (ticket) => {
+        return { "id": ticket.id, name: ticket.name, status: ticket.status, created: ticket.created };
       });
+      console.log(result); 
+      ctx.response.body = result;
       return;
     case "ticketById":
       const { id } = ctx.request.query;
       if (id) {
-        ctx.response.body = tickets.filter(ticket => ticket.id == id);
+        ctx.response.body = tickets.find(ticket => ticket.id == id);
         return;
       }
     default:
@@ -64,12 +64,12 @@ router.post("/", ctx => {
 
   switch (method) {
     case 'createTicket':
-      const { name, description, status } = ctx.request.body;
+      const { name, description } = ctx.request.body;
       const id = uuid.v4();
       const created = Date.now();
-      tickets.push({ id, name, description, status, created });
+      tickets.push({ id, name, description, status: false, created });
 
-      ctx.response.body = id;
+      ctx.response.status = 200;
       return;
     default:
       ctx.response.status = 400;
@@ -77,17 +77,50 @@ router.post("/", ctx => {
   }
 })
 
-router.patch("/", ctx => {
+router.put("/", ctx => {
   const { method } = ctx.request.query;
 
   switch (method) {
     case 'updateTicket':
-      const {id, name, description, } = ctx.request.body;
-      const id = uuid.v4();
-      const created = Date.now();
-      tickets.push({ id, name, description, status, created });
+      const { id, name, description, status } = ctx.request.body;
+      const ticket = tickets.find(ticket => ticket.id == id);
+      console.log(name, description, status, ticket);
+      if (name !== undefined) {
+        ticket.name = name;
+      }
+      if (description !== undefined) {
+        ticket.description = description;
+      }
+      if (status !== undefined) {
+        ticket.status = false;
+        if (typeof status === "Boolean"){
+          ticket.status = status;
+        } else if (typeof status === "string"){
+          if(status === "true") {
+            ticket.status = true;
+          }else {
+            ticket.status = false;
+          }
+        }
+      }
+      console.log(ticket);
+      ctx.response.status = 204
+      return;
+    default:
+      ctx.response.status = 400;
+      return;
+  }
+})
 
-      ctx.response.body = id;
+router.delete("/", ctx => {
+  const { method, id } = ctx.request.query;
+  console.log(method, id)
+
+  switch (method) {
+    case 'deleteTicket':
+      tickets = tickets.filter((ticket) => ticket.id != id);
+      console.log(tickets.map(ticket => ticket.id));
+      ctx.response.status = 204
       return;
     default:
       ctx.response.status = 400;
